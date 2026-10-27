@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataWise Icon Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0F172A;
+      color: #F8FAFC;
+      padding: 40px;
+      text-align: center;
+    }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    p { color: #94A3B8; margin-bottom: 32px; }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: center;
+    }
+    .card {
+      background: #1E293B;
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid #334155;
+    }
+    .card h3 { margin-bottom: 12px; font-size: 14px; color: #94A3B8; }
+    .card canvas { display: block; margin: 0 auto; border-radius: 12px; }
+    .card a {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 8px 20px;
+      background: #0A84FF;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      transition: opacity 0.2s;
+    }
+    .card a:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <h1>DataWise Brand Icons</h1>
+  <p>Right-click any icon and "Save image as..." or click the download link.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>App Icon (1024×1024)</h3>
+      <canvas id="icon" width="512" height="512"></canvas>
+      <a id="icon-link" download="icon.png">Download icon.png</a>
+    </div>
+    <div class="card">
+      <h3>Favicon (48×48)</h3>
+      <canvas id="favicon" width="48" height="48"></canvas>
+      <a id="favicon-link" download="favicon.png">Download favicon.png</a>
+    </div>
+    <div class="card">
+      <h3>Splash Icon (200×200)</h3>
+      <canvas id="splash" width="200" height="200"></canvas>
+      <a id="splash-link" download="splash-icon.png">Download splash-icon.png</a>
+    </div>
+    <div class="card">
+      <h3>Android Foreground (432×432)</h3>
+      <canvas id="android-fg" width="432" height="432"></canvas>
+      <a id="android-fg-link" download="android-icon-foreground.png">Download foreground.png</a>
+    </div>
+    <div class="card">
+      <h3>Android Background (432×432)</h3>
+      <canvas id="android-bg" width="432" height="432"></canvas>
+      <a id="android-bg-link" download="android-icon-background.png">Download background.png</a>
+    </div>
+    <div class="card">
+      <h3>Android Monochrome (432×432)</h3>
+      <canvas id="android-mono" width="432" height="432"></canvas>
+      <a id="android-mono-link" download="android-icon-monochrome.png">Download monochrome.png</a>
+    </div>
+  </div>
+
+  <script>
+    // --- Color palette ---
+    const PRIMARY = '#0A84FF';
+    const PRIMARY_DARK = '#0066CC';
+    const BG_LIGHT = '#F3F5F9';
+    const TEXT_DARK = '#0F172A';
+    const TEXT_WHITE = '#FFFFFF';
+
+    // --- Main icon drawing function ---
+    function drawIcon(canvas, size, options = {}) {
+      const ctx = canvas.getContext('2d');
+      const s = size;
+      const r = options.radius || s * 0.22;
+
+      // Background
+      ctx.clearRect(0, 0, s, s);
+      ctx.fillStyle = options.bgColor || BG_LIGHT;
+      ctx.beginPath();
+      ctx.roundRect(0, 0, s, s, r);
+      ctx.fill();
+
+      // Gradient circle behind the monogram
+      const cx = s / 2;
+      const cy = s * 0.42;
+      const gr = s * 0.28;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, gr);
+      grad.addColorStop(0, PRIMARY);
+      grad.addColorStop(1, PRIMARY_DARK);
+      ctx.beginPath();
+      ctx.arc(cx, cy, gr, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // "D" letter
+      const fontSize = s * 0.32;
+      ctx.fillStyle = TEXT_WHITE;
+      ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('D', cx - s * 0.05, cy - s * 0.01);
+
+      // "w" letter - smaller, offset right and down
+      const smallSize = s * 0.14;
+      ctx.font = `600 ${smallSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+      ctx.fillStyle = PRIMARY;
+      ctx.textAlign = 'left';
+      ctx.fillText('w', cx + s * 0.09, cy + s * 0.08);
+
+      // "DataWise" text below
+      const labelSize = s * 0.065;
+      ctx.font = `700 ${labelSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+      ctx.fillStyle = options.textColor || TEXT_DARK;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText('DataWise', cx, cy + gr + s * 0.06);
+
+      // Small tagline
+      const tagSize = s * 0.038;
+      ctx.font = `500 ${tagSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+      ctx.fillStyle = '#64748B';
+      ctx.fillText('Smart VTU Platform', cx, cy + gr + s * 0.06 + labelSize + s * 0.015);
+    }
+
+    // --- Monochrome icon (white on transparent) ---
+    function drawMonochrome(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      const s = size;
+      ctx.clearRect(0, 0, s, s);
+
+      const cx = s / 2;
+      const cy = s * 0.42;
+      const gr = s * 0.28;
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, gr, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+
+      const fontSize = s * 0.32;
+      ctx.fillStyle = '#000000';
+      ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('D', cx - s * 0.05, cy - s * 0.01);
+
+      const smallSize = s * 0.14;
+      ctx.font = `600 ${smallSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText('w', cx + s * 0.09, cy + s * 0.08);
+
+      const labelSize = s * 0.065;
+      ctx.font = `700 ${labelSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText('DataWise', cx, cy + gr + s * 0.06);
+    }
+
+    // --- Background-only (gradient fill) ---
+    function drawBackground(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      const s = size;
+      const grad = ctx.createLinearGradient(0, 0, s, s);
+      grad.addColorStop(0, BG_LIGHT);
+      grad.addColorStop(1, '#E2E8F0');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, s, s);
+    }
+
+    // --- Generate all icons ---
+    function generate() {
+      // App icon
+      const iconCanvas = document.getElementById('icon');
+      drawIcon(iconCanvas, 512, { radius: 512 * 0.22 });
+      document.getElementById('icon-link').href = iconCanvas.toDataURL('image/png');
+
+      // Favicon
+      const favCanvas = document.getElementById('favicon');
+      drawIcon(favCanvas, 48, { radius: 6 });
+      document.getElementById('favicon-link').href = favCanvas.toDataURL('image/png');
+
+      // Splash
+      const splashCanvas = document.getElementById('splash');
+      drawIcon(splashCanvas, 200, { radius: 24 });
+      document.getElementById('splash-link').href = splashCanvas.toDataURL('image/png');
+
+      // Android foreground
+      const fgCanvas = document.getElementById('android-fg');
+      drawIcon(fgCanvas, 432, { radius: 0, bgColor: 'transparent', textColor: TEXT_DARK });
+      document.getElementById('android-fg-link').href = fgCanvas.toDataURL('image/png');
+
+      // Android background
+      const bgCanvas = document.getElementById('android-bg');
+      drawBackground(bgCanvas, 432);
+      document.getElementById('android-bg-link').href = bgCanvas.toDataURL('image/png');
+
+      // Android monochrome
+      const monoCanvas = document.getElementById('android-mono');
+      drawMonochrome(monoCanvas, 432);
+      document.getElementById('android-mono-link').href = monoCanvas.toDataURL('image/png');
+    }
+
+    generate();
+  </script>
+</body>
+</html>
